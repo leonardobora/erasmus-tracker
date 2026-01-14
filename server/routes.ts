@@ -1,14 +1,76 @@
-import type { Express } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProgramSchema, type ProgramFilters } from "@shared/schema";
 import { z } from "zod";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
+
+declare module "express-session" {
+  interface SessionData {
+    user?: {
+      id: string;
+      username: string;
+    };
+  }
+}
+
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? "admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Curitibagenov@!";
+const SESSION_SECRET = process.env.SESSION_SECRET ?? "change-me";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
+  app.set("trust proxy", 1);
+  app.use(
+    session({
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      store: new MemoryStore({ checkPeriod: 86400000 }),
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 8,
+      },
+    }),
+  );
+
+  const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session.user?.username === ADMIN_USERNAME) {
+      return next();
+    }
+    return res.status(401).json({ message: "Unauthorized" });
+  };
+
+  app.get("/api/me", (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    return res.json({ username: req.session.user.username });
+  });
+
+  app.post("/api/login", (req, res) => {
+    const { username, password } = req.body ?? {};
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      req.session.user = { id: "admin", username: ADMIN_USERNAME };
+      return res.json({ username: ADMIN_USERNAME });
+    }
+
+    return res.status(401).json({ message: "Invalid credentials" });
+  });
+
+  app.post("/api/logout", (req, res) => {
+    req.session.destroy(() => {
+      res.json({ success: true });
+    });
+  });
+
   await storage.seedPrograms();
 
   app.get("/api/programs", async (req, res) => {
@@ -76,7 +138,7 @@ export async function registerRoutes(
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
-  app.post("/api/programs/seed", async (req, res) => {
+  app.post("/api/programs/seed", requireAuth, async (req, res) => {
     try {
       const count = await storage.seedPrograms();
       res.json({ 
@@ -90,7 +152,7 @@ export async function registerRoutes(
   });
 
   // CRUD: Create program
-  app.post("/api/programs", async (req, res) => {
+  app.post("/api/programs", requireAuth, async (req, res) => {
     try {
       // Validate required fields first
       const { name, url, consortium, countries, field, deadline, durationMonths } = req.body;
@@ -129,7 +191,7 @@ export async function registerRoutes(
   });
 
   // CRUD: Update program
-  app.put("/api/programs/:id", async (req, res) => {
+  app.put("/api/programs/:id", requireAuth, async (req, res) => {
     try {
       const updates: Record<string, unknown> = { ...req.body };
       
@@ -163,7 +225,7 @@ export async function registerRoutes(
   });
 
   // CRUD: Delete program
-  app.delete("/api/programs/:id", async (req, res) => {
+  app.delete("/api/programs/:id", requireAuth, async (req, res) => {
     try {
       const deleted = await storage.deleteProgram(req.params.id);
       
@@ -197,7 +259,7 @@ export async function registerRoutes(
     }).optional(),
   });
 
-  app.post("/api/webhooks/programs", async (req, res) => {
+  app.post("/api/webhooks/programs", requireAuth, async (req, res) => {
     try {
       const parsed = webhookProgramSchema.safeParse(req.body);
       

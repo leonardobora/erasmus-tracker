@@ -182,9 +182,33 @@ export default function Home() {
               <GraduationCap className="w-6 h-6 text-primary" />
               <span className="font-semibold">Erasmus Tracker</span>
             </div>
-            <p className="text-sm text-muted-foreground text-center">
-              Tracking Erasmus Mundus Joint Master programs. Data updates regularly.
-            </p>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                Tracking Erasmus Mundus Joint Master programs. Data updates regularly.
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Built by{" "}
+                <a 
+                  href="https://linkedin.com/in/leonardobora" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                  data-testid="link-linkedin"
+                >
+                  Leonardo Bora
+                </a>
+                {" | "}
+                <a 
+                  href="https://github.com/leonardobora" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                  data-testid="link-github"
+                >
+                  GitHub
+                </a>
+              </p>
+            </div>
             <div className="flex gap-4">
               <Link href="/programs">
                 <Button variant="ghost" size="sm">Programs</Button>

@@ -45,12 +45,31 @@ Core entities defined in `shared/schema.ts`:
 Program fields are enumerated: AI/ML, Data Science, Engineering, Sustainability, Business, Health, Social Sciences, Arts & Humanities
 
 ### API Endpoints
+
+**Read Operations:**
 - `GET /api/programs` - List programs with optional filters (field, country, sortBy)
 - `GET /api/programs/:id` - Get single program details
 - `GET /api/deadlines/upcoming?days=N` - Get programs with approaching deadlines (default 30 days)
 - `GET /api/stats` - Get aggregate statistics (totalPrograms, totalCountries, fields, avgDeadlineDays)
-- `POST /api/programs/seed` - Seed sample programs into storage
 - `GET /api/health` - Health check endpoint
+
+**CRUD Operations:**
+- `POST /api/programs` - Create new program
+- `PUT /api/programs/:id` - Update existing program
+- `DELETE /api/programs/:id` - Delete program
+- `POST /api/programs/seed` - Seed sample programs into storage
+
+**Webhook Integration (for n8n/Zapier):**
+- `POST /api/webhooks/programs` - Unified webhook endpoint for external automation tools
+  - Accepts JSON with `action` ("create", "update", "delete") and `program` data
+  - Enables integration with n8n, Zapier, Make, and other automation platforms
+
+### Frontend Pages
+- `/` - Home page with hero, stats dashboard, and upcoming deadlines
+- `/programs` - Program browser with filters and search
+- `/programs/:id` - Program detail page
+- `/timeline` - Deadline timeline view grouped by month
+- `/admin` - Admin dashboard for CRUD operations and CSV import
 
 ### Build System
 - Development: `npm run dev` runs tsx for server with Vite middleware

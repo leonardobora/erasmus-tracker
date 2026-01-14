@@ -11,6 +11,8 @@ export interface IStorage {
   getUpcomingDeadlines(days: number): Promise<ProgramWithDaysUntil[]>;
   getStats(): Promise<ProgramStats>;
   createProgram(program: InsertProgram): Promise<Program>;
+  updateProgram(id: string, updates: Partial<InsertProgram>): Promise<Program | undefined>;
+  deleteProgram(id: string): Promise<boolean>;
   seedPrograms(): Promise<number>;
 }
 
@@ -323,11 +325,34 @@ export class MemStorage implements IStorage {
     const program: Program = {
       ...insertProgram,
       id,
+      tuitionCovered: insertProgram.tuitionCovered ?? true,
+      monthlyAllowance: insertProgram.monthlyAllowance ?? null,
+      englishRequirement: insertProgram.englishRequirement ?? null,
+      description: insertProgram.description ?? null,
       createdAt: now,
       updatedAt: now
     };
     this.programs.set(id, program);
     return program;
+  }
+
+  async updateProgram(id: string, updates: Partial<InsertProgram>): Promise<Program | undefined> {
+    const existingProgram = this.programs.get(id);
+    if (!existingProgram) return undefined;
+
+    const updatedProgram: Program = {
+      ...existingProgram,
+      ...updates,
+      id: existingProgram.id,
+      createdAt: existingProgram.createdAt,
+      updatedAt: new Date()
+    };
+    this.programs.set(id, updatedProgram);
+    return updatedProgram;
+  }
+
+  async deleteProgram(id: string): Promise<boolean> {
+    return this.programs.delete(id);
   }
 
   async seedPrograms(): Promise<number> {

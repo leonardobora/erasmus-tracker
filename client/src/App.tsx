@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import ProgramList from "@/pages/ProgramList";
 import ProgramDetail from "@/pages/ProgramDetail";
 import Timeline from "@/pages/Timeline";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/programs" component={ProgramList} />
       <Route path="/programs/:id" component={ProgramDetail} />
       <Route path="/timeline" component={Timeline} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );

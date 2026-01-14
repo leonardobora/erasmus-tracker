@@ -36,7 +36,7 @@ export function usePrograms() {
   const countries = useMemo(() => {
     if (!data?.programs) return [];
     const allCountries = data.programs.flatMap(p => p.countries);
-    return [...new Set(allCountries)].sort();
+    return Array.from(new Set(allCountries)).sort();
   }, [data?.programs]);
 
   return {

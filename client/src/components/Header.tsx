@@ -1,12 +1,13 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Home, List, Calendar, Menu, X } from "lucide-react";
+import { GraduationCap, Home, List, Calendar, Menu, X, Shield } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/programs", label: "Programs", icon: List },
   { href: "/timeline", label: "Timeline", icon: Calendar },
+  { href: "/admin", label: "Admin", icon: Shield },
 ];
 
 export function Header() {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { usePrograms } from "@/hooks/usePrograms";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,8 +48,10 @@ import {
   Shield,
   ExternalLink,
   Calendar,
-  Save
+  Save,
+  LogOut
 } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface FormData {
   name: string;
@@ -81,10 +84,21 @@ const emptyProgram: FormData = {
 export default function Admin() {
   const { toast } = useToast();
   const { programs, isLoading } = usePrograms();
+  const { logout } = useAuth();
+  const [, setLocation] = useLocation();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState<ProgramWithDaysUntil | null>(null);
   const [formData, setFormData] = useState<FormData>(emptyProgram);
   const [countriesInput, setCountriesInput] = useState("");
+
+  const handleLogout = async () => {
+    try {
+      await logout.mutateAsync();
+      setLocation("/login");
+    } catch (error) {
+      toast({ title: "Failed to sign out", description: String(error), variant: "destructive" });
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertProgram) => {
@@ -392,13 +406,21 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Shield className="w-8 h-8 text-primary" />
+                <h1 className="text-3xl md:text-4xl font-bold">Admin Dashboard</h1>
+              </div>
+              <p className="text-muted-foreground text-lg">
+                Manage Erasmus Mundus programs
+              </p>
+            </div>
+            <Button variant="outline" className="gap-2" onClick={handleLogout} data-testid="button-logout">
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </Button>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Manage Erasmus Mundus programs
-          </p>
         </div>
       </div>
 

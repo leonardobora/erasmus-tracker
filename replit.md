@@ -64,17 +64,29 @@ Program fields are enumerated: AI/ML, Data Science, Engineering, Sustainability,
   - Accepts JSON with `action` ("create", "update", "delete") and `program` data
   - Enables integration with n8n, Zapier, Make, and other automation platforms
 
+### Authentication & Access Control
+- Admin routes require login via `POST /api/login` (session cookie based).
+- Default credentials: `admin` / `Curitibagenov@!` (override with env vars `ADMIN_USERNAME`, `ADMIN_PASSWORD`).
+- Session configuration uses `SESSION_SECRET` (set in production), httpOnly cookies, and in-memory store (swap to persistent store for multi-instance deployments).
+- Current protected routes: `POST/PUT/DELETE /api/programs`, `POST /api/programs/seed`, and `POST /api/webhooks/programs`.
+
 ### Frontend Pages
 - `/` - Home page with hero, stats dashboard, and upcoming deadlines
 - `/programs` - Program browser with filters and search
 - `/programs/:id` - Program detail page
 - `/timeline` - Deadline timeline view grouped by month
-- `/admin` - Admin dashboard for CRUD operations and CSV import
+- `/admin` - Admin dashboard for CRUD operations and CSV import (requires login)
+- `/login` - Admin authentication page
 
 ### Build System
 - Development: `npm run dev` runs tsx for server with Vite middleware
 - Production: Custom build script compiles server with esbuild, frontend with Vite
 - Output: Server bundle to `dist/index.cjs`, client assets to `dist/public/`
+
+### Deployment Notes (MVP)
+- Set environment variables: `SESSION_SECRET` (required for production), `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `PORT` (defaults to 5000).
+- Sessions are stored in memory for the MVP; use a persistent store (e.g., `connect-pg-simple`) before scaling beyond a single instance.
+- Build and serve: `npm run build && npm start` (serves API and static client from the same port).
 
 ## External Dependencies
 

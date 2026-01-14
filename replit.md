@@ -47,8 +47,10 @@ Program fields are enumerated: AI/ML, Data Science, Engineering, Sustainability,
 ### API Endpoints
 - `GET /api/programs` - List programs with optional filters (field, country, sortBy)
 - `GET /api/programs/:id` - Get single program details
-- `GET /api/deadlines/upcoming` - Get programs with approaching deadlines
-- `GET /api/stats` - Get aggregate statistics
+- `GET /api/deadlines/upcoming?days=N` - Get programs with approaching deadlines (default 30 days)
+- `GET /api/stats` - Get aggregate statistics (totalPrograms, totalCountries, fields, avgDeadlineDays)
+- `POST /api/programs/seed` - Seed sample programs into storage
+- `GET /api/health` - Health check endpoint
 
 ### Build System
 - Development: `npm run dev` runs tsx for server with Vite middleware
